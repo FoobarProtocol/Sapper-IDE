@@ -1,77 +1,79 @@
 import time
 import openai
-def gpt3(prompt, t, max_tokens):
-    try:
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=prompt,
-            temperature=t,
-            max_tokens=max_tokens,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0,
-            stop=""
-        )
-        return response["choices"][0]["text"]
-
-    except Exception as e:
-        print(type(e), e)
+import argparse
+def parse_args():
         time.sleep(3)
 
-decompose_template = """A user is interacting with a large language model. They are crafting prompts and giving them to the LLM in order to get the model to complete a task or generate output. 
- 
-In order for a large language model to better complete tasks or generate outputs, task requirements need to be decomposed. 
- 
-The decomposed subtasks can interact with a large language model like a human thought chain, reflecting data flow and control flow.
- 
- 
+decompose_template = """You are provided a prompt from a user which you will breakdown using a technique called 'task decomposition'. Task decomposition involves breaking down a complex task into a series of smaller subtasks. Each subtask represents a specific part of the overall task and can be processed independently by the LLM. You are going to do with this with the prompt you are given.
+
+The decomposed subtasks are designed to interact with the LLM in a manner similar to human thought process, reflecting both data flow (the movement and transformation of data) and control flow (the order in which the subtasks are executed).
+
+By decomposing tasks in this way, we can guide the LLM more effectively, making it easier for the model to understand the task requirements and generate more accurate and relevant outputs. This approach also makes it easier to manage and troubleshoot the task execution process, as each subtask can be monitored and adjusted independently.
+
 <Task Description>
-I want to build a chatbot that will stop the conversation until someone says GoodBye.
+I want to build a music recommendation system for a music streaming platform that suggests songs to users based on their listening history and ratings they've given to songs.
 </Task Description>
- 
+
 <Decomposed Subtasks>
 
-<Control While User_Input not equal to GoodBye>
+(Subtask1 Input: User_ID Output: Listening_History Model: Database)
+Retrieve the listening history of the user from the database.
 
-(Subtask1 Input:  Chat_History User_Input Bot_Response Output: Bot_Response Model LLM)
-Combine chat history, user input, and bot response to get a new chat history.
- 
-(Subtask2 Input: Chat_History User_Input Output: Bot_Response Model LLM)
-Keep the conversation going and prompt the user for more input
+(Subtask2 Input: User_ID Output: User_Ratings Model: Database)
+Retrieve the ratings given by the user from the database.
+
+<Control If Listening_History and User_Ratings are not empty>
+
+(Subtask3 Input: Listening_History, User_Ratings Output: User_Profile Model: User_Profiling_Algorithm)
+Generate a user profile based on the listening history and ratings.
+
+(Subtask4 Input: User_Profile Output: Song_Suggestions Model: Recommendation_Algorithm)
+Generate song suggestions based on the user profile.
 
 </Control>
+
+<Control If Listening_History or User_Ratings are empty>
+
+(Subtask5 Input: None Output: Song_Suggestions Model: Popular_Songs)
+Suggest popular songs when there's not enough data to generate a user profile.
+
+</Control>
+
+(Subtask6 Input: Song_Suggestions Output: Display_Suggestions Model: User_Interface)
+Display the song suggestions to the user on the platform.
+
 </Decomposed Subtasks>
- 
- 
+
+
 <Task Description>
 I need to develop a function to obtain the weather conditions of the day according to the weather API and automatically draw 500x500 pixel RGB color paintings that meet the weather conditions, draw abstract paintings when the weather is rainy, and draw natural landscape paintings when the weather is sunny, so as to improve the user experience and entertainment.
 </Task Description>
- 
+
 <Decomposed Subtasks >
 
 (Subtask1 Input: None Output: Weather_Data Model OpenWeatherMap)
 obtain weather conditions for the day
- 
+
 <Control If Weather equal to rainy>
 
 (Subtask2 Input: Weather_Data Output: Painting_Description Model LLM)
 generate descriptions of abstract paintings through weather information.
 
 </Control>
- 
+
 <Control If Weather equal to sunny>
 
 (Subtask3 Input: Weather_Data Output: Painting_Description Model LLM)
 generate natural landscape descriptions of abstract paintings through weather information.
 
 </Control>
- 
+
 (Subtask4 Input: Painting_Description Output: Painting; Model Image-generation-model)
 Generate 500x500 pixel paintings according to Painting_Description.
 
 </Decomposed Subtasks>
- 
- 
+
+
 <Task Description>
 {{Description}}
 </Task Description>
@@ -118,7 +120,7 @@ Display the generated paintings to users to improve user experience and entertai
 """
 
 def decompose(query):
-    decomposed_steps = gpt3(decompose_template.replace("{{Description}}", query), 0, 2048)
+    decomposed_steps = gpt3(decompose_template.replace("{{Description}}", query), 0, 16384)
     return decomposed_steps
 
 def Generasteps(query , OpenAIKey):
