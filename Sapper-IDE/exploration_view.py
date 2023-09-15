@@ -2,6 +2,7 @@ import openai
 import json
 
 class exploration():
+    actionable project requirements. It leverages OpenAI's GPT-4 API to perform its tasks.
     def __init__(self, OpenaiKey):
         openai.api_key = OpenaiKey
         self.prompt = [{"role": "system", "content": "Are you ready?"}, {"role": "assistant", "content": "Yes, I am always ready to assist you to the best of my abilities. Just let me know how I can help you."},]
@@ -29,6 +30,4 @@ You have to output the three aspects in the form of 1. Key Requirements:, 2. Use
         self.prompt = self.prompt + [
             {"role": "system", "content": self.context},
         ]
-        # Summarize conversation and extract user requirements
-        return self.chatbot()["content"]
 
